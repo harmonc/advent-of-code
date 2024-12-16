@@ -24,10 +24,32 @@ def getRegion(point):
 
 def getCost(region):
     perimeter = 0
+    sides = []
     for p in region:
         for v in [(1,0),(-1,0),(0,1),(0,-1)]:
             if not (p[0]+v[0],p[1]+v[1]) in region:
-                perimeter += 1
+                if v[0] < 0:
+                    sides.append({'pos':p,'orient':0})  
+                if v[1] < 0:
+                    sides.append({'pos':p,'orient':1})
+                if v[0] > 0:
+                    sides.append({'pos':(p[0]+v[0],p[1]),'orient':2})
+                if v[1] > 0:
+                    sides.append({'pos':(p[0],p[1]+v[1]),'orient':3})
+
+    while len(sides) > 0:
+        queue = [sides[0]]
+        while len(queue) > 0:
+            curr = queue.pop(0)
+            if curr in sides:
+                sides.pop(sides.index(curr))
+                if curr['orient'] % 2 == 1:
+                    queue.append({'pos':(curr['pos'][0]-1,curr['pos'][1]),'orient':curr['orient']})
+                    queue.append({'pos':(curr['pos'][0]+1,curr['pos'][1]),'orient':curr['orient']})
+                elif curr['orient'] % 2 == 0:
+                    queue.append({'pos':(curr['pos'][0],curr['pos'][1]-1),'orient':curr['orient']})
+                    queue.append({'pos':(curr['pos'][0],curr['pos'][1]+1),'orient':curr['orient']})
+        perimeter += 1
     return perimeter * len(region)
 
 for i in range(len(arr)):
